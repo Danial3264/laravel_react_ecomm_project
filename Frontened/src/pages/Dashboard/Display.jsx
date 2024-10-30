@@ -18,6 +18,10 @@ import ViewSlider from './Slider/ViewSlider';
 import UpdateLogo from './Logo/ShowLogo';
 import ShowLogo from './Logo/ShowLogo';
 import CreateLogo from './Logo/CreateLogo';
+import AddSteadfast from './Steadfast/AddSteadfast';
+import ViewSteadfast from './Steadfast/ViewSteadfast';
+import AddCustomCode from './Custom/AddCustomCode';
+import ViewCustomCode from './Custom/ViewCustomCode';
 
 const Display = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -41,16 +45,31 @@ const Display = () => {
         return <CreateSlider onSliderCreated={() => setSelectedMenu('viewSlider')} />;        
       case 'viewSlider':
         return <ViewSlider />;
+
       case 'addNewCategory':
           return <CreateCategory onCategoryCreated={() => setSelectedMenu('viewCategory')} />;        
       case 'viewCategory':
         return <ViewCategory />;
+
       case 'addNewProduct':
         return <AddNewProduct onProductCreated={() => setSelectedMenu('viewProducts')} />;
       case 'viewProducts':
         return <ViewProduct />;
+
+        case 'addSfCourier':
+        return <AddSteadfast onCourierCreated={() => setSelectedMenu('viewSfCourier')} />;        
+        case 'viewSfCourier':
+        return <ViewSteadfast />;
+
+        case 'addCustomCode':
+        return <AddCustomCode onCustomCreated={() => setSelectedMenu('viewCustomCode')} />;        
+        case 'viewCustomCode':
+        return <ViewCustomCode />;
+
       case 'orders':
         return <Orders />;
+
+
       default:
         return <Dashboard />;
     }
@@ -70,7 +89,7 @@ const Display = () => {
     <div className="flex h-screen">
       {/* Sidebar */}
       <div
-        className={`bg-gray-800 text-white flex-shrink-0 p-4 
+        className={`bg-gray-800 text-white flex-shrink-0 p-4 overflow-y-scroll
           ${isSidebarOpen ? 'w-64' : 'w-20'} 
           ${isSidebarOpen ? 'block' : 'hidden'} 
           md:block transition-all duration-300 fixed md:relative z-50 h-full`}
@@ -175,6 +194,52 @@ const Display = () => {
             <FaPeopleCarry size={20} className={`${selectedMenu === 'orders' ? 'text-yellow-400' : ''}`} />
             {isSidebarOpen && <span>Orders</span>}
           </li>
+
+
+          <li
+            onClick={() => setSelectedMenu('addSfCourier')}
+            className={`flex items-center space-x-4 p-2 rounded cursor-pointer 
+              ${selectedMenu === 'createOrder' ? 'bg-gray-700 font-bold' : 'hover:bg-gray-700'}`}
+          >
+            <TbCategoryPlus  size={20} className={`${selectedMenu === 'addSfCourier' ? 'text-yellow-400' : ''}`} />
+            {isSidebarOpen && <span>Add Steadfast Courier</span>}
+          </li>
+
+          <li
+            onClick={() => setSelectedMenu('viewSfCourier')}
+            className={`flex items-center space-x-4 p-2 rounded cursor-pointer 
+              ${selectedMenu === 'viewSfCourier' ? 'bg-gray-700 font-bold' : 'hover:bg-gray-700'}`}
+          >
+            <TbCategoryFilled size={20} className={`${selectedMenu === 'viewSfCourier' ? 'text-yellow-400' : ''}`} />
+            {isSidebarOpen && <span>View Steadfast Courier</span>}
+          </li>
+
+
+          <li
+            onClick={() => setSelectedMenu('addCustomCode')}
+            className={`flex items-center space-x-4 p-2 rounded cursor-pointer 
+              ${selectedMenu === 'addCustomCode' ? 'bg-gray-700 font-bold' : 'hover:bg-gray-700'}`}
+          >
+            <TbCategoryPlus  size={20} className={`${selectedMenu === 'addCustomCode' ? 'text-yellow-400' : ''}`} />
+            {isSidebarOpen && <span>Add Custom Code</span>}
+          </li>
+
+          <li
+            onClick={() => setSelectedMenu('viewCustomCode')}
+            className={`flex items-center space-x-4 p-2 rounded cursor-pointer 
+              ${selectedMenu === 'viewCustomCode' ? 'bg-gray-700 font-bold' : 'hover:bg-gray-700'}`}
+          >
+            <TbCategoryFilled size={20} className={`${selectedMenu === 'viewCustomCode' ? 'text-yellow-400' : ''}`} />
+            {isSidebarOpen && <span>View Custom Code</span>}
+          </li>
+
+
+
+
+
+
+
+
 
           <li
             onClick={() => setSelectedMenu('settings')}

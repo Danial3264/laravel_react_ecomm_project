@@ -3,6 +3,7 @@ import PendingOrders from './PendingOrders';
 import CompleteOrders from './CompleteOrders';
 import FailedOrders from './FailedOrders';
 import Steadfast from '../Steadfast/Steadfast';
+import DeliverOrders from './DeliverOrders';
 
 const Orders = () => {
   const [activeComponent, setActiveComponent] = useState('pending'); // default to PendingOrders
@@ -16,6 +17,8 @@ const Orders = () => {
         return <CompleteOrders />;
       case 'failed':
         return <FailedOrders />;
+      case 'delivered':
+        return <DeliverOrders />;
       case 'steadFast':
           return <Steadfast />;
       default:
@@ -44,6 +47,14 @@ const Orders = () => {
         >
           Failed Orders
         </button>
+
+        <button 
+          className={`px-4 py-2 rounded ${activeComponent === 'delivered' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
+          onClick={() => setActiveComponent('delivered')}
+        >
+          Deliver from Mine
+        </button>
+
         <button 
           className={`px-4 py-2 rounded ${activeComponent === 'steadFast' ? 'bg-blue-500 text-white' : 'bg-gray-200'}`}
           onClick={() => setActiveComponent('steadFast')}

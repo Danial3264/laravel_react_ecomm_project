@@ -7,7 +7,8 @@ import axios from 'axios';
 import { config } from '../../config';
 
 const Product = () => {
-  const url = config.apiBaseUrl;
+  const apiUrl = config.apiBaseUrl;
+  const baseUrl = config.customUrl;
   const { id } = useParams(); // Extract the product ID from the URL
   const navigate = useNavigate(); // useNavigate to redirect
   const dispatch = useDispatch();
@@ -26,7 +27,7 @@ const Product = () => {
   }, [dispatch, status]);
 
   useEffect(() => {
-    axios.get(`${url}/sizes`)
+    axios.get(`${apiUrl}/sizes`)
       .then(response => {
         setSizes(response.data);
       })
@@ -105,7 +106,7 @@ const Product = () => {
         {/* Product Image */}
         <div className="md:w-1/2 p-4">
           <img
-            src={`../../assets/images/${product.product_image}`}
+            src={`${baseUrl}${product.product_image}`}
             alt={product.product_name}
             className="h-full w-full object-cover object-center rounded-lg group-hover:opacity-75"
           />

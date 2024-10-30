@@ -119,7 +119,7 @@ const Navbar = () => {
             return (
               <div key={product.id} className="block hover:bg-gray-100 p-2 rounded-lg border">
                 <div className="flex items-center space-x-4">
-                  <img className="w-12 h-12 rounded-lg object-cover" src={`${baseUrl}/${product.product_image}`} alt={product.product_name} />
+                  <img className="w-12 h-12 rounded-lg object-cover" src={`${baseUrl}${product.product_image}`} alt={product.product_name} />
                   <div className="flex-grow flex justify-between items-center">
                     <div>
                       <p className="font-bold text-gray-800">{product.product_name}</p>

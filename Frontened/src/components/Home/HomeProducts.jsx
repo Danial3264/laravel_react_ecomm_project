@@ -83,7 +83,7 @@ const HomeProducts = () => {
                 <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-200 xl:aspect-h-8 xl:aspect-w-7">
                   <img
                     alt={product.product_name}
-                    src={`${baseUrl}/${product.product_image}`}
+                    src={`${baseUrl}${product.product_image}`}
                     className="h-full w-full object-cover object-center group-hover:opacity-75"
                   />
                 </div>

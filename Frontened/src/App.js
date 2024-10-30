@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import Home from "./pages/Home";
 import Checkout from "./pages/Checkout";
@@ -14,8 +14,41 @@ import Shipping from "./pages/optional/Shipping";
 import PrivacyPolicy from "./pages/optional/PrivacyPolicy";
 import TermsOfService from "./pages/optional/TermsOfService";
 import Returns from "./pages/optional/Return";
+import axios from "axios";
+import { config } from "./config";
+
+const apiUrl = config.apiBaseUrl;
 
 function App() {
+  useEffect(() => {
+    // API থেকে head_code এবং body_code ফেচ করা
+    axios.get(`${apiUrl}/custom`)
+      .then((response) => {
+        const data = response.data;
+        if (data) {
+          // head এবং body তে ইনজেক্ট করা
+          injectCustomCode(data.head_code, data.body_code);
+        }
+      })
+      .catch((error) => console.error("Error fetching custom code:", error));
+  }, []);
+
+  const injectCustomCode = (headCode, bodyCode) => {
+    // Head section এ কোড যুক্ত করা
+    if (headCode) {
+      const headScript = document.createElement("script");
+      headScript.innerHTML = headCode;
+      document.head.appendChild(headScript);
+    }
+
+    // Body section এ কোড যুক্ত করা
+    if (bodyCode) {
+      const bodyScript = document.createElement("div");
+      bodyScript.innerHTML = bodyCode;
+      document.body.appendChild(bodyScript);
+    }
+  };
+
   return (
     <div className="App">
       <Router>
@@ -32,7 +65,7 @@ function App() {
           <Route path="/privacypolicy" element={<PrivacyPolicy />} />
           <Route path="/termsofservice" element={<TermsOfService />} />
           <Route path="/returns" element={<Returns />} />
-          
+
           {/* Protecting dashboard routes */}
           <Route
             path="/dashboard"

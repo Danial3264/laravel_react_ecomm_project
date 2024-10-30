@@ -2,10 +2,16 @@ import React, { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchOrders } from '../../../redux/OrdersSlice';
 import axios from 'axios';
+import { config } from '../../../config';
 
 const Steadfast = () => {
+
+  const apiUrl = config.apiBaseUrl;
+  const baseUrl = config.customUrl;
   const dispatch = useDispatch();
   const { orders, status, error } = useSelector((state) => state.orders);
+
+  const [couriers, setCouriers] = useState()
 
   // State to store the status of each order
   const [orderStatuses, setOrderStatuses] = useState({});
@@ -14,45 +20,66 @@ const Steadfast = () => {
     dispatch(fetchOrders());
   }, [dispatch]);
 
-  // Filter out duplicate orders based on the orderNumber
-  const uniqueOrders = orders.reduce((acc, current) => {
-    const x = acc.find(item => item.orderNumber === current.orderNumber);
-    if (!x) {
-      return acc.concat([current]);
-    } else {
+  // Filter for completed orders only and remove duplicates based on orderNumber
+  const completedOrders = orders
+    .filter(order => order.payment_status === 'Completed')
+    .reduce((acc, order) => {
+      if (!acc.find(item => item.orderNumber === order.orderNumber)) {
+        acc.push(order);
+      }
       return acc;
-    }
-  }, []);
+    }, []);
 
-  // Fetch statuses for all unique orders
+    useEffect(() => {
+      axios.get(`${apiUrl}/sf`)
+          .then(response => {
+            setCouriers(response.data);
+          })
+          .catch(error => {
+              console.error("There was an error fetching the Slider!", error);
+          });
+    }, []);
+
+  // Fetch statuses for all unique completed orders
   useEffect(() => {
     const fetchStatuses = async () => {
+      // Ensure both completedOrders and couriers are valid arrays before proceeding
+      if (completedOrders.length === 0 || !couriers?.length) return;
+  
       try {
         const statuses = {};
-
-        // Fetch status for each order
-        for (const order of uniqueOrders) {
-          const response = await axios.get(`https://portal.packzy.com/api/v1/status_by_invoice/${order.orderNumber}`, {
-            headers: {
-              'Api-Key': 'wrebk6f8wckmo5rq1a0nlg22m6exr4er',
-              'Secret-Key': 't0alowipxdltjlspraa4ngdu',
-              'Content-Type': 'application/json',
-            },
-          });
-
-          statuses[order.orderNumber] = response.data.delivery_status;
+        const { sf_api, sf_secret_key } = couriers[0] || {}; // Ensure couriers[0] exists
+  
+        if (!sf_api || !sf_secret_key) {
+          console.error('API or Secret Key is missing');
+          return;
         }
-
+  
+        for (const order of completedOrders) {
+          try {
+            const response = await axios.get(`https://portal.packzy.com/api/v1/status_by_invoice/${order.orderNumber}`,
+              {
+                headers: {
+                  'Api-Key': sf_api, // Replace this with actual API key
+                  'Secret-Key': sf_secret_key, // Use dynamic secret key
+                  'Content-Type': 'application/json',
+                }
+              }
+            );
+            statuses[order.orderNumber] = response.data.delivery_status;
+          } catch (error) {
+            console.error(`Failed to fetch status for order ${order.orderNumber}`, error);
+          }
+        }
         setOrderStatuses(statuses);
       } catch (error) {
         console.error('Failed to fetch order statuses', error);
       }
     };
-
-    if (uniqueOrders.length > 0) {
-      fetchStatuses();
-    }
-  }, [uniqueOrders]);
+  
+    fetchStatuses();
+  }, [completedOrders, couriers]);
+  
 
   return (
     <div>
@@ -69,13 +96,12 @@ const Steadfast = () => {
           </tr>
         </thead>
         <tbody>
-          {uniqueOrders.map((order) => (
+          {completedOrders.map(order => (
             <tr key={order.id} className="hover:bg-gray-100">
               <td className="border px-4 py-2">{order.orderNumber}</td>
-              <td className="border px-4 py-2">{order.name}</td>
-              <td className="border px-4 py-2">{order.phone_number}</td>
+              <td className="border px-4 py-2">{order.customer.name}</td>
+              <td className="border px-4 py-2">{order.customer.phone_number}</td>
               <td className="border px-4 py-2">
-                {/* Display fetched status or loading indicator */}
                 {orderStatuses[order.orderNumber] || 'Loading status...'}
               </td>
             </tr>

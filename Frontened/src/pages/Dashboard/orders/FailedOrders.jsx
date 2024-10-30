@@ -23,9 +23,9 @@ const FailedOrders = () => {
   const handleEdit = (order) => {
     setEditingOrder(order.orderId); // Using orderId from grouped orders
     setFormData({
-      name: order.name,
-      phone_number: order.phone_number,
-      address: order.address,
+      name: order.customer.name,
+      phone_number: order.customer.phone_number,
+      address: order.customer.address,
       total_amount: order.total_amount,
       payment_method: order.payment_method,
       payment_status: order.payment_status,
@@ -99,9 +99,9 @@ const FailedOrders = () => {
     orders.forEach((order) => {
       if (!groupedOrders[order.id]) {
         groupedOrders[order.id] = {
-          name: order.name,
-          phone_number: order.phone_number,
-          address: order.address,
+          name: order.customer.name,
+          phone_number: order.customer.phone_number,
+          address: order.customer.address,
           total_amount: order.total_amount,
           payment_method: order.payment_method,
           payment_status: order.payment_status,
@@ -109,11 +109,15 @@ const FailedOrders = () => {
           shipping_cost: order.shipping_cost,
         };
       }
-      groupedOrders[order.id].items.push({
-        product_id: order.product_id,
-        order_id: order.id,
-        product_name: order.product_name,
-        quantity: order.quantity,
+      order.items.forEach((item) => {
+        groupedOrders[order.id].items.push({
+          product_id: item.product_id,
+          order_id: item.order_id,
+          product_name: item.product_name,
+          product_price: item.product_price,
+          quantity: item.quantity,
+          size: item.size,
+        });
       });
     });
 
@@ -124,6 +128,8 @@ const FailedOrders = () => {
   };
 
   const groupedFailedOrders = groupOrders(failedOrders);
+
+  console.log('Failed:',groupedFailedOrders)
 
   return (
     <div className="bg-white shadow-lg rounded-lg p-6 w-full max-w-screen">
@@ -151,9 +157,9 @@ const FailedOrders = () => {
           <tbody>
             {groupedFailedOrders.map((order) => (
               <tr key={order.orderId} className="hover:bg-gray-100">
-                <td className="border px-4 py-2">{order.name}</td>
-                <td className="border px-4 py-2">{order.phone_number}</td>
-                <td className="border px-4 py-2">{order.address}</td>
+                <td className="border px-4 py-2">{order.name || 'N/A'}</td>
+                <td className="border px-4 py-2">{order.phone_number || 'N/A'}</td>
+                <td className="border px-4 py-2">{order.address || 'N/A'}</td>
                 <td className="border px-4 py-2">
                   {order.items.map((item, index) => (
                     <div key={`${item.product_id}-${index}`}>

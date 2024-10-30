@@ -11,6 +11,9 @@ use App\Http\Controllers\SizeController;
 use App\Http\Controllers\LogoController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\SliderController;
+use App\Http\Controllers\ItemController;
+use App\Http\Controllers\SteadfastController;
+use App\Http\Controllers\CustomController;
 use Laravel\Sanctum\Sanctum;
 
 
@@ -68,13 +71,31 @@ Route::put('/sizes/{id}', [SizeController::class, 'update']);
 Route::delete('/sizes/{id}', [SizeController::class, 'destroy']); 
 
 
-
-
-
 Route::get('/orders', [OrderController::class, 'getAllOrders']);         
 Route::post('/orders', [OrderController::class, 'createOrder']);    
 Route::put('/orders/{id}', [OrderController::class, 'updateOrder']);
 Route::delete('/orders/{id}', [OrderController::class, 'deleteOrder']);
+
+
+Route::get('/items', [ItemController::class, 'index']);  
+Route::delete('/items/{order_id}/{product_id}', [ItemController::class, 'destroy']);
+
+
+
+
+Route::get('/sf', [SteadfastController::class, 'index']);         
+Route::post('/sf', [SteadfastController::class, 'store']);        
+Route::put('/sf/{id}', [SteadfastController::class, 'update']);   
+Route::delete('/sf/{id}', [SteadfastController::class, 'destroy']); 
+
+
+Route::get('/custom', [CustomController::class, 'index']);         
+Route::post('/custom', [CustomController::class, 'store']);        
+Route::put('/custom/{id}', [CustomController::class, 'update']);   
+Route::delete('/custom/{id}', [CustomController::class, 'destroy']); 
+
+
+
 
 
 

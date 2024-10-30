@@ -38,7 +38,7 @@ const Thanks = () => {
               <div key={item.id} className="flex justify-between items-center border-b pb-4 mb-4">
                 <div className="flex items-center space-x-4">
                   <img
-                    src={`${baseUrl}/${item.product_image}`}
+                    src={`${baseUrl}${item.product_image}`}
                     alt={item.product_name}
                     className="w-20 h-20 rounded"
                   />

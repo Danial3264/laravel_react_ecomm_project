@@ -86,62 +86,63 @@ class OrderController extends Controller
         }
     }
 
+
+
+
+
+
+
+
+
     public function updateOrder(Request $request, $id)
 {
     $request->validate([
-        'customer.name' => 'required|string',
-        'customer.address' => 'required|string',
-        'customer.phone_number' => 'required|string',
-        'customer.email' => 'nullable|email',
-        'orderNumber' => 'required|string',
-        'total' => 'required|numeric',
-        'payment_method' => 'required|string',
-        'transaction_mobile' => $request->input('payment_method') !== 'cash_on_delivery' ? 'required|string' : 'nullable|string', 
-        'items' => 'required|array',
-        'items.*.id' => 'required|integer',
-        'items.*.product_name' => 'required|string',
-        'items.*.product_price' => 'required|numeric',
-        'items.*.size' => 'nullable|string',
-        'items.*.quantity' => 'required|integer',
-        'shipping_cost' => 'nullable|numeric',
+        'name' => 'sometimes|string',
+        'address' => 'sometimes|string',
+        'phone_number' => 'sometimes|string',
+        'total_amount' => 'sometimes|numeric',
+        'payment_status' => 'sometimes|string',
+        'items' => 'sometimes|array', // Update this to match incoming data
+        'items.*.product_id' => 'required_with:items|integer|exists:order_items,product_id',
+        'items.*.quantity' => 'required_with:items|integer|min:1'
     ]);
 
-    DB::beginTransaction();
-
     try {
+        // Find the order by ID
         $order = Order::findOrFail($id);
-        $customerData = $request->input('customer');
-        $order->customer->update($customerData);
-        $orderData = [
-            'orderNumber' => $request->input('orderNumber'),
-            'total_amount' => $request->input('total'),
-            'shipping_cost' => $request->input('shipping_cost'),
-            'payment_method' => $request->input('payment_method'),
-            'tnx_mobile_number' => $request->input('payment_method') === 'cash_on_delivery' ? '0' : $request->input('transaction_mobile'), // Set to null for COD
-        ];
-        $order->update($orderData);
-        $order->items()->delete();
 
-        $items = $request->input('items');
-        foreach ($items as $item) {
-            $orderItemData = [
-                'order_id' => $order->id,
-                'product_id' => $item['id'],
-                'product_name' => $item['product_name'],
-                'product_price' => $item['product_price'],
-                'size' => $item['size'] ?? null,
-                'quantity' => $item['quantity'],
-            ];
-            OrderItem::create($orderItemData);
+        // Update order fields
+        $order->update($request->only('total_amount', 'payment_status'));
+
+        // Update customer information
+        if ($order->customer) {
+            $order->customer->update($request->only('name', 'address', 'phone_number'));
         }
 
-        DB::commit();
-        return response()->json(['message' => 'Order updated successfully!'], 200);
+        // Update individual order items if provided
+        if ($request->has('items')) {
+            foreach ($request->input('items') as $item) {
+                // Find the specific OrderItem by product_id
+                $orderItem = OrderItem::where('product_id', $item['product_id'])
+                                      ->where('order_id', $order->id)
+                                      ->firstOrFail();
+
+                // Update the quantity
+                $orderItem->quantity = $item['quantity'];
+                $orderItem->save();
+            }
+        }
+
+        return response()->json(['message' => 'Order and items updated successfully!'], 200);
     } catch (\Exception $e) {
-        DB::rollBack();
-        return response()->json(['error' => 'Failed to update order', 'message' => $e->getMessage()], 500);
+        return response()->json(['error' => 'Failed to update the order', 'message' => $e->getMessage()], 500);
     }
 }
+
+
+
+
+
 public function deleteOrder($id)
 {
     DB::beginTransaction();

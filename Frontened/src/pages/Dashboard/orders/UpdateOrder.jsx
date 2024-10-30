@@ -82,6 +82,7 @@ const UpdateOrder = ({
           <option value="Pending">Pending</option>
           <option value="Completed">Completed</option>
           <option value="Failed">Failed</option>
+          <option value="Delivered">Delivered</option>
         </select>
       </div>
 

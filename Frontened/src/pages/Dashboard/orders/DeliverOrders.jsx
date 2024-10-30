@@ -5,7 +5,7 @@ import UpdateOrder from './UpdateOrder';
 import axios from 'axios';
 import { config } from '../../../config';
 
-const PendingOrders = () => {
+const DeliverOrders = () => {
   const apiUrl = config.apiBaseUrl;
   const dispatch = useDispatch();
   const [editingOrder, setEditingOrder] = useState(null);
@@ -16,7 +16,7 @@ const PendingOrders = () => {
   }, [dispatch]);
 
   const { orders, status, error } = useSelector((state) => state.orders);
-  const pendingOrders = orders.filter(order => order.payment_status === 'Pending');
+  const pendingOrders = orders.filter(order => order.payment_status === 'Delivered');
 
   console.log('My order:', orders)
 
@@ -130,7 +130,7 @@ const PendingOrders = () => {
 
   return (
     <div className="bg-white shadow-lg rounded-lg p-6 w-full max-w-screen">
-      <h2 className="text-2xl font-bold mb-4">Pending Orders</h2>
+      <h2 className="text-2xl font-bold mb-4">Delivered Orders</h2>
 
       {status === 'loading' && <p>Loading...</p>}
       {status === 'failed' && <p>Error: {error}</p>}
@@ -211,4 +211,4 @@ const PendingOrders = () => {
   );
 };
 
-export default PendingOrders;
+export default DeliverOrders;

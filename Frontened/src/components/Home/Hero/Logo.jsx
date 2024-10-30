@@ -24,7 +24,7 @@ const Logo = () => {
                     <img 
                         key={index} // Add a unique key for each child element
                         className='w-[200px] h-[50px]' 
-                        src={`${customUrl}/${log.logo}`}
+                        src={`${customUrl}${log.logo}`}
                         alt="Logo"
                     />
                 ))

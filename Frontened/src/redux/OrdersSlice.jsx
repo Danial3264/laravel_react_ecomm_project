@@ -2,10 +2,10 @@ import { createSlice, createAsyncThunk } from '@reduxjs/toolkit';
 import axios from 'axios';
 import { config } from '../config';
 
-const url = config.apiBaseUrl;
+const apiUrl = config.apiBaseUrl;
 
 export const fetchOrders = createAsyncThunk('orders/fetchOrders', async () => {
-  const response = await axios.get(`${url}/orders`);
+  const response = await axios.get(`${apiUrl}/orders`);
   console.log('Orders fetched from API:', response.data);  // Log API response
   return response.data;
 });
@@ -16,7 +16,7 @@ export const deleteOrder = createAsyncThunk(
   'orders/deleteOrder',
   async (orderId, { rejectWithValue }) => {
     try {
-      await axios.delete(`${url}/orders/${orderId}`);  // Note: the endpoint should be `/order/${orderId}`
+      await axios.delete(`${apiUrl}/orders/${orderId}`);  // Note: the endpoint should be `/order/${orderId}`
       return orderId;  // Return the ID of the deleted order
     } catch (err) {
       return rejectWithValue(err.response?.data || 'Failed to delete order');
@@ -28,7 +28,7 @@ export const deleteOrder = createAsyncThunk(
 export const updateOrder = createAsyncThunk('orders/updateOrder', async ({ id, updatedOrder }, { rejectWithValue }) => {
   console.log(updatedOrder)
   try {
-    const response = await axios.put(`${url}/orders/${id}`, updatedOrder);
+    const response = await axios.put(`${apiUrl}/orders/${id}`, updatedOrder);
     
     return response.data;
   } catch (err) {

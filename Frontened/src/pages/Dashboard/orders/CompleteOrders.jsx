@@ -3,6 +3,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { fetchOrders, deleteOrder, updateOrder } from '../../../redux/OrdersSlice';
 import UpdateOrder from './UpdateOrder';
 import axios from 'axios';
+import { config } from '../../../config';
 
 const CompleteOrders = () => {
   const dispatch = useDispatch();
@@ -10,66 +11,69 @@ const CompleteOrders = () => {
   const [formData, setFormData] = useState({});
   const [selectedOrders, setSelectedOrders] = useState([]);
   const [selectAll, setSelectAll] = useState(false); // State for "Select All" checkbox
+  const [couriers, setCouriers] = useState([]);
+  const apiUrl = config.apiBaseUrl;
 
   // Fetch orders on component mount
   useEffect(() => {
     dispatch(fetchOrders());
   }, [dispatch]);
 
+  // Fetch couriers on component mount
+  useEffect(() => {
+    axios.get(`${apiUrl}/sf`)
+      .then(response => {
+        setCouriers(response.data);
+      })
+      .catch(error => {
+        console.error("There was an error fetching the couriers!", error);
+      });
+  }, [apiUrl]);
+
   const { orders, status, error } = useSelector((state) => state.orders);
   const pendingOrders = orders.filter(order => order.payment_status === 'Completed');
   const selectedCompletedOrders = pendingOrders.filter(order => {
-    return selectedOrders.includes(String(order.id)); 
+    return selectedOrders.includes(String(order.id));
   });
 
-  console.log(selectedCompletedOrders)
-const handleSendToSteadfast = async () => {
-  
-  const bulkData = selectedCompletedOrders.map(order => {
-    const totalAmount = order.total_amount + order.shipping_cost;
-
-    return {
-      invoice: order.orderNumber,
-      recipient_name: order.name,
-      recipient_phone: order.phone_number,
-      recipient_address: order.address,
-      cod_amount: totalAmount,
-      note: order.note || ''
-    };
-  });
-
-  const url = 'https://portal.packzy.com/api/v1'
-  const apiKey = 'wrebk6f8wckmo5rq1a0nlg22m6exr4er'
-  const secretKey = 't0alowipxdltjlspraa4ngdu'
-
-  try {
-    const response = await axios.post(`${url}/create_order/bulk-order`, bulkData, {
-      headers: {
-        'Api-Key': apiKey,
-        'Secret-Key': secretKey,
-        'Content-Type': 'application/json'
-      }
+  const handleSendToSteadfast = async () => {
+    const bulkData = selectedCompletedOrders.map(order => {
+      const totalAmount = parseFloat(order.total_amount) + parseFloat(order.shipping_cost);
+      return {
+        invoice: order.orderNumber,
+        recipient_name: order.customer.name,
+        recipient_phone: order.customer.phone_number,
+        recipient_address: order.customer.address,
+        cod_amount: totalAmount,
+        note: order.note || ''
+      };
     });
 
+    const { sf_api, sf_secret_key } = couriers[0] || {};
+    const url = 'https://portal.packzy.com/api/v1';
 
-    // Ensure `response.data.bulkData` exists before accessing it
-    if (response.data && response.data.bulkData && response.data.bulkData.length === 0) {
-      alert('No orders were processed. Please check the input data.');
-    } else {
-      alert('Orders sent successfully!');
+    try {
+      const response = await axios.post(`${url}/create_order/bulk-order`, bulkData, {
+        headers: {
+          'Api-Key': sf_api,
+          'Secret-Key': sf_secret_key,
+          'Content-Type': 'application/json'
+        }
+      });
+
+      if (response.data && response.data.bulkData && response.data.bulkData.length === 0) {
+        alert('No orders were processed. Please check the input data.');
+      } else {
+        alert('Orders sent successfully!');
+      }
+    } catch (error) {
+      alert('Failed to send orders.');
     }
-  } catch (error) {
-    alert('Failed to send orders.');
-  }
-};
-
-
-
-
+  };
 
   // Handle edit button click
   const handleEdit = (order) => {
-    setEditingOrder(order.orderId); 
+    setEditingOrder(order.orderId);
     setFormData({
       name: order.name,
       phone_number: order.phone_number,
@@ -162,7 +166,6 @@ const handleSendToSteadfast = async () => {
     }
   };
 
-
   // Group orders by their order ID
   const groupOrders = (orders) => {
     const groupedOrders = {};
@@ -170,9 +173,9 @@ const handleSendToSteadfast = async () => {
     orders.forEach((order) => {
       if (!groupedOrders[order.id]) {
         groupedOrders[order.id] = {
-          name: order.name,
-          phone_number: order.phone_number,
-          address: order.address,
+          name: order.customer.name,
+          phone_number: order.customer.phone_number,
+          address: order.customer.address,
           total_amount: order.total_amount,
           payment_method: order.payment_method,
           payment_status: order.payment_status,
@@ -180,12 +183,15 @@ const handleSendToSteadfast = async () => {
           shipping_cost: order.shipping_cost,
         };
       }
-      groupedOrders[order.id].items.push({
-        product_id: order.product_id,
-        order_id: order.id,
-        product_name: order.product_name,
-        quantity: order.quantity,
-        size: order.size,
+      order.items.forEach((item) => {
+        groupedOrders[order.id].items.push({
+          product_id: item.product_id,
+          order_id: item.order_id,
+          product_name: item.product_name,
+          product_price: item.product_price,
+          quantity: item.quantity,
+          size: item.size,
+        });
       });
     });
 
@@ -231,8 +237,8 @@ const handleSendToSteadfast = async () => {
             </thead>
             <tbody>
               {groupedPendingOrders.map((order) => (
-                <tr key={order.orderId} className="hover:bg-gray-100">
-                  <td className="border px-4 py-2">
+                <tr key={order.orderId} className="border">
+                  <td className="border px-4 py-2 text-center">
                     <input
                       type="checkbox"
                       checked={selectedOrders.includes(order.orderId)}
@@ -244,34 +250,28 @@ const handleSendToSteadfast = async () => {
                   <td className="border px-4 py-2">{order.address}</td>
                   <td className="border px-4 py-2">
                     {order.items.map((item, index) => (
-                      <div key={`${item.product_id}-${index}`}>
-                        {item.product_name} (Qty: {item.quantity}, Size:{item.size} )
-                        <button
-                          className="text-red-500 hover:underline ml-2"
-                          onClick={() => removeItem(index, order.orderId, item.product_id)}
-                        >
-                          Remove
-                        </button>
+                      <div key={index}>
+                        <strong>{item.product_name}</strong> - Quantity: {item.quantity} - Size: {item.size}
                       </div>
                     ))}
                   </td>
                   <td className="border px-4 py-2">{order.total_amount}</td>
                   <td className="border px-4 py-2">{order.shipping_cost}</td>
                   <td className="border px-4 py-2">
-                    {parseFloat(order.total_amount) + parseFloat(order.shipping_cost)}
+                    {(parseFloat(order.total_amount) + parseFloat(order.shipping_cost)).toFixed(2)}
                   </td>
                   <td className="border px-4 py-2">{order.payment_method}</td>
                   <td className="border px-4 py-2">{order.payment_status}</td>
                   <td className="border px-4 py-2">
                     <button
+                      className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2"
                       onClick={() => handleEdit(order)}
-                      className="text-blue-500 hover:underline mr-2"
                     >
                       Edit
                     </button>
                     <button
+                      className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded"
                       onClick={() => handleDelete(order.orderId)}
-                      className="text-red-500 hover:underline"
                     >
                       Delete
                     </button>
@@ -280,26 +280,27 @@ const handleSendToSteadfast = async () => {
               ))}
             </tbody>
           </table>
-
-          <button
-            className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded mt-4"
-            onClick={handleSendToSteadfast}
-          >
-            Send to Steadfast
-          </button>
+          <div className="mt-4">
+            <button
+              className="bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded"
+              onClick={handleSendToSteadfast}
+              disabled={selectedOrders.length === 0}
+            >
+              Send to Steadfast
+            </button>
+          </div>
         </>
       ) : (
-        <p>No pending orders found.</p>
+        <p>No completed orders available.</p>
       )}
-
-      {/* Form for editing an order */}
       {editingOrder && (
         <UpdateOrder
           editingOrder={editingOrder}
-          handleSubmit={handleSubmit}
           formData={formData}
           handleInputChange={handleInputChange}
           handleItemChange={handleItemChange}
+          handleSubmit={handleSubmit}
+          removeItem={removeItem}
         />
       )}
     </div>

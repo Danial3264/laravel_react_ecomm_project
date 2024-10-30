@@ -39,7 +39,7 @@ const Carosel = () => {
             <div className="relative w-full">
               <img 
                 className="rounded-lg w-full object-cover sm:h-[300px] lg:h-[500px]" 
-                src={`${baseUrl}/${slide.slider_image}`} 
+                src={`${baseUrl}${slide.slider_image}`} 
                 alt={slide.slider_hook} 
               />
               

@@ -262,7 +262,7 @@ const handleDelete = (itemId, size) => {
                 {cart.map((item) => (
                   <div key={item.id} className="relative flex justify-between items-center mb-4 p-4 bg-white border border-gray-300 rounded-lg shadow-sm">
                     <div className="flex space-x-4">
-                      <img className="w-20 h-20 rounded-lg" src={`${baseUrl}/${item.product_image}`} alt="" />
+                      <img className="w-20 h-20 rounded-lg" src={`${baseUrl}${item.product_image}`} alt="" />
                       <div>
                         <p className="text-lg font-medium">{item.product_name}</p>
                         <p className="text-sm text-gray-600">Price: {item.offer_price || item.product_price} BDT</p>

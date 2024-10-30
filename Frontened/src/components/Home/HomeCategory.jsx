@@ -53,7 +53,7 @@ const HomeCategory = () => {
           <div key={category.id}>  {/* Each category gets its own slide */}
             <a href={`/shop?category=${category.id}`} className='block'>
               <div className='border p-2 text-center flex flex-col justify-center items-center bg-gray-100 m-2'>
-                <img src={`${baseUrl}/${category.category_image}`} alt={category.category_name} className='h-full w-full object-cover object-center hover:opacity-75' />
+                <img src={`${baseUrl}${category.category_image}`} alt={category.category_name} className='h-full w-full object-cover object-center hover:opacity-75' />
                 <p className='font-bold text-2xl mt-2'>{category.category_name}</p>
               </div>
             </a>
