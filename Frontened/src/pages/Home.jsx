@@ -18,12 +18,10 @@ const Home = () => {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // 2 সেকেন্ড পরে লোডিং এনিমেশন বন্ধ হবে, আপনি এটি নিজের মতো করে কাস্টমাইজ করতে পারেন
     const timer = setTimeout(() => {
       setIsLoading(false)
     }, 2000)
 
-    // Clean up the timer
     return () => clearTimeout(timer)
   }, [])
 

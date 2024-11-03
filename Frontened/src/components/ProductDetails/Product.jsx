@@ -2,9 +2,10 @@ import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchProducts } from '../../redux/ProductThunks';
-import { addToCart, increaseQuantity, decreaseQuantity } from '../../redux/CartSlice'; // Import actions for increasing and decreasing quantity
+import { addToCart, increaseQuantity, decreaseQuantity } from '../../redux/CartSlice';
 import axios from 'axios';
 import { config } from '../../config';
+import ReactImageMagnify from 'react-image-magnify';
 
 const Product = () => {
   const apiUrl = config.apiBaseUrl;
@@ -13,13 +14,18 @@ const Product = () => {
   const navigate = useNavigate(); // useNavigate to redirect
   const dispatch = useDispatch();
 
-  const { products, status, error } = useSelector((state) => state.products); // Access products and status from Redux
+  const { products, status, error } = useSelector((state) => state.products);
   const [product, setProduct] = useState(null);
+  const [relatedProducts, setRelatedProducts] = useState([]); // Related products state
   const [selectedSize, setSelectedSize] = useState(''); // State for selected size
   const [sizes, setSizes] = useState([]);
-  const [quantity, setQuantity] = useState(1); // Local state to manage product quantity
+  const [quantity, setQuantity] = useState(1);
 
-  // Fetch products when the component mounts
+  // Scroll to top whenever id changes (when a new product is viewed)
+  useEffect(() => {
+    window.scrollTo(0, 0); // স্ক্রল টু টপ
+  }, [id]);
+
   useEffect(() => {
     if (status === 'idle') {
       dispatch(fetchProducts());
@@ -36,14 +42,16 @@ const Product = () => {
       });
   }, []);
 
-  // Find the product by ID from the Redux store once products are available
   useEffect(() => {
     if (status === 'succeeded' && products.length > 0) {
       const foundProduct = products.find((p) => p.id.toString() === id);
+      setProduct(foundProduct);
+
       if (foundProduct) {
-        setProduct(foundProduct);
-      } else {
-        setProduct(null);
+        const related = products.filter(
+          (p) => p.category_id === foundProduct.category_id && p.id !== foundProduct.id
+        );
+        setRelatedProducts(related);
       }
     }
   }, [products, status, id]);
@@ -59,7 +67,7 @@ const Product = () => {
         <br />
         <button
           className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-300"
-          onClick={() => navigate('/products')} // Redirect back to product listing page
+          onClick={() => navigate('/products')}
         >
           Back to Products
         </button>
@@ -74,7 +82,7 @@ const Product = () => {
         <br />
         <button
           className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-300"
-          onClick={() => navigate('/products')} // Redirect back to product listing page
+          onClick={() => navigate('/products')}
         >
           Back to Products
         </button>
@@ -82,18 +90,15 @@ const Product = () => {
     );
   }
 
-  // Handle "Buy Now" click, redirect to checkout
   const handleBuyNow = (product) => {
-    dispatch(addToCart({ ...product, quantity, size: selectedSize })); // Add product with quantity and size
-    navigate('/checkout', { state: { product, selectedSize } }); // Pass product and size details to checkout
+    dispatch(addToCart({ ...product, quantity, size: selectedSize }));
+    navigate('/checkout', { state: { product, selectedSize } });
   };
 
-  // Handle increase quantity
   const handleIncreaseQuantity = () => {
     setQuantity(quantity + 1);
   };
 
-  // Handle decrease quantity
   const handleDecreaseQuantity = () => {
     if (quantity > 1) {
       setQuantity(quantity - 1);
@@ -103,21 +108,28 @@ const Product = () => {
   return (
     <div className="container mx-auto p-6">
       <div className="flex flex-col md:flex-row items-center bg-white shadow-lg rounded-lg overflow-hidden">
-        {/* Product Image */}
         <div className="md:w-1/2 p-4">
-          <img
-            src={`${baseUrl}${product.product_image}`}
-            alt={product.product_name}
-            className="h-full w-full object-cover object-center rounded-lg group-hover:opacity-75"
+        <ReactImageMagnify
+            {...{
+              smallImage: {
+                alt: product.product_name,
+                isFluidWidth: true,
+                src: `${baseUrl}${product.product_image}`,
+              },
+              largeImage: {
+                src: `${baseUrl}${product.product_image}`,
+                width: 1200,
+                height: 1800,
+              },
+              enlargedImagePosition: 'over',
+            }}
           />
         </div>
 
-        {/* Product Details */}
         <div className="md:w-1/2 p-4 space-y-4">
           <h1 className="text-3xl font-bold text-gray-900">{product.product_name}</h1>
           <p className="text-gray-700 text-sm md:text-base">{product.product_description}</p>
 
-          {/* Display price and offer price */}
           <div className="flex">
             {product.offer_price ? (
               <>
@@ -129,7 +141,6 @@ const Product = () => {
             )}
           </div>
 
-          {/* Size selection if applicable */}
           {product.size === 'Yes' && (
             <div className="mt-4">
               <label className="block text-gray-700 text-sm font-bold mb-2">
@@ -148,7 +159,6 @@ const Product = () => {
             </div>
           )}
 
-          {/* Quantity controls */}
           <div className="flex items-center space-x-4 mt-4">
             <button
               className="px-4 py-2 bg-red-500 text-white rounded-lg"
@@ -166,14 +176,43 @@ const Product = () => {
             </button>
           </div>
 
-          {/* Buy Now Button */}
           <button
             className="mt-4 px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition duration-300"
             onClick={() => handleBuyNow(product)}
-            disabled={product.size === 'Yes' && !selectedSize} // Disable button if size is required and not selected
+            disabled={product.size === 'Yes' && !selectedSize}
           >
             Buy Now
           </button>
+        </div>
+      </div>
+
+      <div className="mt-10">
+        <h2 className="text-2xl font-semibold mb-4">Related Products</h2>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+          {relatedProducts.map((relatedProduct) => (
+            <div key={relatedProduct.id} className="bg-white shadow-lg rounded-lg p-4">
+                            <div
+                className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-200 xl:aspect-h-8 xl:aspect-w-7"
+                onClick={() => window.location.href = `/product/${relatedProduct.id}`} // Add this to handle image click for navigation
+                style={{ cursor: "pointer" }} // Change cursor to indicate clickability
+              >
+                <img
+                  src={`${baseUrl}${relatedProduct.product_image}`}
+                  alt={relatedProduct.product_name}
+                  className="h-50 w-full object-cover mb-4"
+                />
+              </div>
+
+              <h3 className="text-lg font-semibold">{relatedProduct.product_name}</h3>
+              <p className="text-red-500 font-bold">৳{relatedProduct.offer_price || relatedProduct.product_price}</p>
+              <button
+                className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg"
+                onClick={() => navigate(`/product/${relatedProduct.id}`)}
+              >
+                View Details
+              </button>
+            </div>
+          ))}
         </div>
       </div>
     </div>

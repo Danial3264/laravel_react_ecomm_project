@@ -66,31 +66,35 @@ const AllProducts = ({ products = [] }) => {
   return (
     <div className="bg-white">
       <div className="mx-auto max-w-2xl sm:px-6 lg:max-w-screen-2xl space-y-2">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 space-x-2 space-y-2">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 space-x-2 space-y-2">
           {products.map((product) => {
             const selectedSize = selectedSizes[product.id] || '';
             const cartItem = getCartItem(product.id, selectedSize);
 
             return (
               <div key={product.id} className="group relative space-x-2 border rounded-lg p-4 bg-gray-100">
-                <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-200 xl:aspect-h-8 xl:aspect-w-7">
-                  <img
-                    alt={product.product_name}
-                    src={`${baseUrl}${product.product_image}`}
-                    className="h-full w-full object-cover object-center group-hover:opacity-75"
-                  />
-                </div>
+              <div
+                className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-200 xl:aspect-h-8 xl:aspect-w-7"
+                onClick={() => window.location.href = `/product/${product.id}`} // Add this to handle image click for navigation
+                style={{ cursor: "pointer" }} // Change cursor to indicate clickability
+              >
+                <img
+                  alt={product.product_name}
+                  src={`${baseUrl}${product.product_image}`}
+                  className="h-full w-full object-cover object-center group-hover:opacity-75"
+                />
+              </div>
                 <div className="flex flex-col justify-center">
-                  <h3 className="mt-4 text-lg text-gray-700 font-bold">{product.product_name}</h3>
+                  <h3 className="mt-4 text-md lg:text-lg text-gray-700 font-bold">{product.product_name}</h3>
                   <div className="flex">
-                    {product.offer_price ? (
-                      <>
-                        <p className="mt-1 text-lg font-medium text-gray-500 line-through mr-2">{product.product_price} TK.</p>
-                        <p className="mt-1 text-lg font-medium text-red-500">{product.offer_price} TK.</p>
-                      </>
-                    ) : (
-                      <p className="mt-1 text-lg font-medium text-red-500">{product.product_price} TK.</p>
-                    )}
+                      {product.offer_price ? (
+                          <>
+                            <p className="mt-1 text-md lg:text-lg font-medium text-gray-500 line-through mr-2">{Math.round(product.product_price)} TK.</p>
+                            <p className="mt-1 text-md lg:text-lg font-medium text-red-500">{Math.round(product.offer_price)} TK.</p>
+                          </>
+                        ) : (
+                          <p className="mt-1 text-md lg:text-lg font-medium text-red-500">{Math.round(product.product_price)} TK.</p>
+                      )}
                   </div>
 
                   {/* Size selection */}
@@ -137,7 +141,7 @@ const AllProducts = ({ products = [] }) => {
                     </button>
                   )}
 
-                  <Link to={`/product/${product.id}`} className="rounded text-lg font-bold p-2 mt-2 text-center">
+                  <Link to={`/product/${product.id}`} className="rounded text-md font-bold p-2 mt-2 text-center">
                     View Details
                   </Link>
                 </div>

@@ -10,16 +10,16 @@ const HomeCategory = () => {
     dots: true,
     infinite: true,
     speed: 500,
-    slidesToShow: 3,
-    slidesToScroll: 3,
+    slidesToShow: 4,
+    slidesToScroll: 4,
     autoplay: true,       
     autoplaySpeed: 3000, 
     responsive: [
       {
         breakpoint: 768, // Screen width <= 768px (tablet and mobile)
         settings: {
-          slidesToShow: 1, // Show 1 slide on mobile
-          slidesToScroll: 1,
+          slidesToShow: 2, // Show 1 slide on mobile
+          slidesToScroll: 2,
         }
       }
     ]
@@ -54,7 +54,7 @@ const HomeCategory = () => {
             <a href={`/shop?category=${category.id}`} className='block'>
               <div className='border p-2 text-center flex flex-col justify-center items-center bg-gray-100 m-2'>
                 <img src={`${baseUrl}${category.category_image}`} alt={category.category_name} className='h-full w-full object-cover object-center hover:opacity-75' />
-                <p className='font-bold text-2xl mt-2'>{category.category_name}</p>
+                <p className='font-bold text-lg mt-2'>{category.category_name}</p>
               </div>
             </a>
           </div>

@@ -1,12 +1,15 @@
 import React, { useEffect, useState } from "react";
 import axios from "axios";
+import { config } from "../../../config";
 
 const UpdateProduct = ({ formData, handleInputChange, handleSubmit }) => {
   const [categories, setCategories] = useState([]);
 
+  const apiUrl = config.apiBaseUrl;
+
   // Fetch categories when the component mounts
   useEffect(() => {
-    axios.get('/categories') // Replace with your actual API endpoint
+    axios.get(`${apiUrl}/categories`) // Replace with your actual API endpoint
       .then(response => {
         setCategories(response.data); // Assuming response data is an array of categories
       })

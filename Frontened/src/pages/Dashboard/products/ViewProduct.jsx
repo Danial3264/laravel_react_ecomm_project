@@ -86,52 +86,53 @@ const Products = () => {
 
       {products && products.length > 0 ? (
         <table className="table-auto w-full border-collapse">
-          <thead>
-            <tr className="bg-gray-200">
-              <th className="border px-4 py-2">Product Image</th>
-              <th className="border px-4 py-2">Product Name</th>
-              <th className="border px-4 py-2">Product Price</th>
-              <th className="border px-4 py-2">Offer Price</th>
-              <th className="border px-4 py-2">Category Name</th> {/* Changed to Category Name */}
-              <th className="border px-4 py-2">Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {products.map((product) => (
-              <tr key={product.id} className="hover:bg-gray-100">
-                <td className="border px-4 py-2">
-                  {product.product_image ? (
-                    <img
-                      src={`${baseUrl}/${product.product_image}`} // Adjust this path to where your images are stored
-                      alt={product.product_name}
-                      className="w-16 h-16 object-cover"
-                    />
-                  ) : (
-                    'No image'
-                  )}
-                </td>
-                <td className="border px-4 py-2">{product.product_name}</td>
-                <td className="border px-4 py-2">{product.product_price}</td>
-                <td className="border px-4 py-2">{product.offer_price}</td>
-                <td className="border px-4 py-2">{getCategoryName(product.category_id)}</td> {/* Display Category Name */}
-                <td className="border px-4 py-2">
-                  <button
-                    onClick={() => handleEdit(product)}
-                    className="text-blue-500 hover:underline mr-2"
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(product.id)}
-                    className="text-red-500 hover:underline"
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+  <thead>
+    <tr className="bg-gray-200">
+      <th className="border px-4 py-2">Product Image</th>
+      <th className="border px-4 py-2">Product Name</th>
+      <th className="border px-4 py-2">Product Price</th>
+      <th className="border px-4 py-2">Offer Price</th>
+      <th className="border px-4 py-2">Category Name</th>
+      <th className="border px-4 py-2">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    {products.map((product) => (
+      <tr key={product.id} className="hover:bg-gray-100">
+        <td className="border px-4 py-2">
+          {product.product_image ? (
+            <img
+              src={`${baseUrl}/${product.product_image}`}
+              alt={product.product_name}
+              className="w-16 h-16 object-cover"
+            />
+          ) : (
+            'No image'
+          )}
+        </td>
+        <td className="border px-4 py-2">{product.product_name}</td>
+        <td className="border px-4 py-2">{product.product_price}</td>
+        <td className="border px-4 py-2">{product.offer_price}</td>
+        <td className="border px-4 py-2">{getCategoryName(product.category_id)}</td>
+        <td className="border px-4 py-2">
+          <button
+            onClick={() => handleEdit(product)}
+            className="text-blue-500 hover:underline mr-2"
+          >
+            Edit
+          </button>
+          <button
+            onClick={() => handleDelete(product.id)}
+            className="text-red-500 hover:underline"
+          >
+            Delete
+          </button>
+        </td>
+      </tr>
+    ))}
+  </tbody>
+</table>
+
       ) : (
         <p>No Products found</p>
       )}

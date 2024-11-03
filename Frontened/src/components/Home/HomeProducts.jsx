@@ -43,8 +43,6 @@ const HomeProducts = () => {
     return cartItems.find((item) => item.id === productId && item.size === size);
   };
 
-  
-
   // Fetch available product sizes
   useEffect(() => {
     axios.get(`${apiUrl}/sizes`) // Replace with your actual API endpoint
@@ -55,7 +53,6 @@ const HomeProducts = () => {
         console.error('Error fetching sizes:', error);
       });
   }, []);
-  console.log(availableSizes)
 
   // State to track selected sizes for each product
   const [selectedSizes, setSelectedSizes] = useState({});
@@ -71,88 +68,105 @@ const HomeProducts = () => {
         {status === "loading" && <p>Loading...</p>}
         {status === "failed" && <p>Error: {error}</p>}
 
-        <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 xl:gap-x-6">
-          {products.map((product) => {
-            const selectedSize = selectedSizes[product.id] || '';
+        <div className="grid grid-cols-2 gap-x-2 gap-y-2 lg:grid-cols-3 xl:grid-cols-5 xl:gap-x-6">
+        {products.map((product) => {
+  console.log(product); // Log the product to check its structure
 
-            // Get cart item based on product ID and selected size
-            const cartItem = getCartItem(product.id, selectedSize);
+  const selectedSize = selectedSizes[product.id] || '';
 
-            return (
-              <div key={product.id} className="group relative border p-2 rounded-lg bg-gray-100">
-                <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-200 xl:aspect-h-8 xl:aspect-w-7">
-                  <img
-                    alt={product.product_name}
-                    src={`${baseUrl}${product.product_image}`}
-                    className="h-full w-full object-cover object-center group-hover:opacity-75"
-                  />
-                </div>
-                <div className="flex flex-col justify-center">
-                  <div>
-                    <h3 className="mt-4 text-lg text-gray-700 font-bold ">{product.product_name}</h3>
-                    <div className="flex">
+  // Check if `product.product_name` and `product.product_image` are valid
+  if (typeof product.product_name !== 'string' || typeof product.product_image !== 'string') {
+    console.error('Invalid product data:', product);
+    return null; // Skip rendering this product if the data is invalid
+  }
+
+  const cartItem = getCartItem(product.id, selectedSize);
+
+      return (
+           <div key={product.id} className="group relative border p-2 rounded-lg bg-gray-100">
+              <div
+                className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-200 xl:aspect-h-8 xl:aspect-w-7"
+                onClick={() => window.location.href = `/product/${product.id}`} // Add this to handle image click for navigation
+                style={{ cursor: "pointer" }} // Change cursor to indicate clickability
+              >
+                <img
+                  alt={product.product_name}
+                  src={`${baseUrl}${product.product_image}`}
+                  className="h-full w-full object-cover object-center group-hover:opacity-75"
+                />
+              </div>
+                  <div className="flex flex-col justify-center">
+                    <div>
+                      <h3 className="mt-4 text-md lg:text-lg text-gray-700 font-bold">
+                        {product.product_name}
+                      </h3>
+                      <div className="flex">
                         {product.offer_price ? (
                           <>
-                            <p className="mt-1 text-lg font-medium text-gray-500 line-through mr-2">{product.product_price} TK.</p>
-                            <p className="mt-1 text-lg font-medium text-red-500">{product.offer_price} TK.</p>
+                            <p className="mt-1 text-md lg:text-lg font-medium text-gray-500 line-through mr-2">
+                              {Math.round(product.product_price)} TK.
+                            </p>
+                            <p className="mt-1 text-md lg:text-lg font-medium text-red-500">
+                              {Math.round(product.offer_price)} TK.
+                            </p>
                           </>
                         ) : (
-                          <p className="mt-1 text-lg font-medium text-red-500">{product.product_price} TK.</p>
+                          <p className="mt-1 text-md lg:text-lg font-medium text-red-500">
+                            {Math.round(product.product_price)} TK.
+                          </p>
                         )}
                       </div>
-
-                  </div>
-
-                  {/* Size Selection */}
-                  {product.size === 'Yes' ? (
-                    <select
-                      value={selectedSize}
-                      onChange={(e) => handleSizeChange(product.id, e.target.value)}
-                      className="mt-2 p-2 border rounded"
-                    >
-                      <option value="">Select Size</option>
-                      {availableSizes.map((size) => (
-                        <option key={size.id} value={size.size}>
-                          {size.size}
-                        </option>
-                      ))}
-                    </select>
-                  ) : (
-                    ''
-                  )}
-
-                  {cartItem ? (
-                    <div className="flex items-center space-x-4 mt-2">
-                      <button
-                        className="px-4 py-2 bg-red-500 text-white rounded"
-                        onClick={() => handleDecreaseQuantity(product.id, selectedSize)}
-                      >
-                        -
-                      </button>
-                      <span className="text-lg font-semibold">{cartItem.quantity}</span>
-                      <button
-                        className="px-4 py-2 bg-green-500 text-white rounded"
-                        onClick={() => handleIncreaseQuantity(product.id, selectedSize)}
-                      >
-                        +
-                      </button>
                     </div>
-                  ) : (
-                    <button
-                      className="rounded bg-gradient-to-r from-violet-500 to-fuchsia-500 text-lg font-semibold p-2 mt-2 hover:animate-bounce"
-                      onClick={() => handleAddToCart(product, selectedSize)}
-                      disabled={product.size === 'Yes' && !selectedSize} // Disable only if size is required and not selected
-                    >
-                      Add to Cart
-                    </button>
-                  )}
-                  <Link to={`/product/${product.id}`} className="rounded text-lg font-bold p-2 mt-2 text-center">
-                    View Details
-                  </Link>
+
+                    {/* Size Selection */}
+                    {product.size === "Yes" && (
+                      <select
+                        value={selectedSize}
+                        onChange={(e) => handleSizeChange(product.id, e.target.value)}
+                        className="mt-2 p-2 border rounded"
+                      >
+                        <option value="">Select Size</option>
+                        {availableSizes.map((size) => (
+                          <option key={size.id} value={size.size}>
+                            {size.size}
+                          </option>
+                        ))}
+                      </select>
+                    )}
+
+                    {cartItem ? (
+                      <div className="flex items-center space-x-4 mt-2">
+                        <button
+                          className="px-4 py-2 bg-red-500 text-white rounded"
+                          onClick={() => handleDecreaseQuantity(product.id, selectedSize)}
+                        >
+                          -
+                        </button>
+                        <span className="text-md font-semibold">{cartItem.quantity}</span>
+                        <button
+                          className="px-4 py-2 bg-green-500 text-white rounded"
+                          onClick={() => handleIncreaseQuantity(product.id, selectedSize)}
+                        >
+                          +
+                        </button>
+                      </div>
+                    ) : (
+                      <button
+                        className="rounded bg-gradient-to-r from-violet-500 to-fuchsia-500 text-lg font-semibold p-2 mt-2 hover:animate-bounce"
+                        onClick={() => handleAddToCart(product, selectedSize)}
+                        disabled={product.size === "Yes" && !selectedSize}
+                      >
+                        Add to Cart
+                      </button>
+                    )}
+                    <Link to={`/product/${product.id}`} className="rounded text-md p-2 mt-2 text-center">
+                      View Details
+                    </Link>
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+
         </div>
       </div>
     </div>
@@ -160,4 +174,3 @@ const HomeProducts = () => {
 };
 
 export default HomeProducts;
-

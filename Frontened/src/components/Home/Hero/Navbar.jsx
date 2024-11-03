@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { FaShoppingCart, FaSearch } from 'react-icons/fa';
+import { FaShoppingCart, FaSearch, FaBars, FaTimes } from 'react-icons/fa';
 import Search from './Search';
 import axios from 'axios';
 import { Link } from 'react-router-dom';
@@ -8,12 +8,12 @@ import { addToCart, decreaseQuantity, increaseQuantity } from '../../../redux/Ca
 import Logo from './Logo';
 import { config } from '../../../config';
 
-
 const Navbar = () => {
   const apiUrl = config.apiBaseUrl;
   const baseUrl = config.customUrl;
   const [isOpen, setIsOpen] = useState(false);
-  const [isOpenSearch, setOpenSearch] = useState(false);
+  const [isSidebarOpen, setSidebarOpen] = useState(false); // সাইডবার খোলা অবস্থার জন্য state
+  const [isOpenSearch, setOpenSearch] = useState(window.innerWidth >= 768); // Desktop মোডে সবসময় ওপেন থাকবে
   const [categories, setCategories] = useState([]);
   const [loading, setLoading] = useState(true);
   const products = useSelector((state) => state.products.products);
@@ -41,6 +41,11 @@ const Navbar = () => {
     setIsOpen(!isOpen);
   };
 
+  // সাইডবার টগল ফাংশন
+  const toggleSidebar = () => {
+    setSidebarOpen(!isSidebarOpen);
+  };
+
   useEffect(() => {
     axios.get(`${apiUrl}/categories`)
       .then(response => {
@@ -51,7 +56,34 @@ const Navbar = () => {
         console.error('Error fetching categories:', error);
         setLoading(false);
       });
+
+    // রিসাইজ হলে মোবাইল/ডেস্কটপ অনুযায়ী সার্চের অবস্থা পরিবর্তন করবে
+    const handleResize = () => {
+      setOpenSearch(window.innerWidth >= 768); // মোবাইলে ক্লিক করলে, ডেস্কটপে সবসময় খোলা থাকবে
+    };
+
+    window.addEventListener('resize', handleResize);
+
+    // Cleanup event listener
+    return () => {
+      window.removeEventListener('resize', handleResize);
+    };
   }, []);
+
+  // Sidebar এর বাইরে ক্লিক করলে সাইডবার বন্ধ করা হবে
+  useEffect(() => {
+    const handleOutsideClick = (event) => {
+      if (isSidebarOpen && !event.target.closest('.sidebar')) {
+        setSidebarOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleOutsideClick);
+
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+    };
+  }, [isSidebarOpen]);
 
   const dispatch = useDispatch();
   const cartItems = useSelector((state) => state.cart.items);
@@ -86,31 +118,43 @@ const Navbar = () => {
         </div>
 
         <div className="flex items-center space-x-4 text-white">
-          <FaSearch onClick={handleSearch} className="cursor-pointer" />
+          {/* ডেস্কটপে সার্চ সবসময় খোলা থাকবে, মোবাইলে ক্লিক করলে খোলা হবে */}
+          {window.innerWidth < 768 ? (
+            <FaSearch onClick={handleSearch} className="cursor-pointer" />
+          ) : null}
           {isOpenSearch ? <Search onSearch={handleProductSearch} /> : null}
-        </div>
 
-        <div className="md:hidden">
-          <button onClick={toggleMenu} className="text-white focus:outline-none">
-            {isOpen ? '✕' : '☰'}
-          </button>
+          {/* মোবাইল সাইডবার টগল বাটন */}
+          <FaBars onClick={toggleSidebar} className="cursor-pointer md:hidden" />
         </div>
       </div>
 
-      {isOpen && (
-        <div className="md:hidden bg-gray-700 p-4 space-y-2">
+      {/* Backdrop যখন সাইডবার ওপেন থাকবে */}
+      {isSidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-40"
+          onClick={() => setSidebarOpen(false)}  // ব্যাকড্রপে ক্লিক করলে সাইডবার বন্ধ হবে
+        />
+      )}
+
+      {/* সাইডবার */}
+      <div
+        className={`fixed top-0 left-0 h-full w-64 bg-gray-900 text-white transform ${isSidebarOpen ? 'translate-x-0' : '-translate-x-full'} transition-transform duration-300 ease-in-out z-50 sidebar`}
+      >
+        <div className='mt-10'>
+          <FaTimes className="absolute top-4 right-4 cursor-pointer" onClick={toggleSidebar} />
           {categories.map((category) => (
             <Link
               to={`/shop?category=${category.id}`}
               key={category.id}
-              className="block text-gray-300 hover:text-white"
-              onClick={() => setIsOpen(false)}
+              className="block py-2 px-6 text-gray-300 hover:bg-gray-700 border-b border-gray-700"
+              onClick={() => setSidebarOpen(false)}
             >
               {category.category_name}
             </Link>
           ))}
         </div>
-      )}
+      </div>
 
       {isOpenSearch && filteredProducts.length > 0 && (
         <div className="absolute bg-white shadow-lg rounded-lg w-full max-w-md mt-2 right-0 text-black p-4 z-50 space-y-2">
@@ -136,9 +180,6 @@ const Navbar = () => {
                         </button>
                       )}
                     </div>
-                    <Link to={`/product/${product.id}`} className="rounded text-lg font-bold p-2 ml-4 text-right">
-                      View Details
-                    </Link>
                   </div>
                 </div>
               </div>

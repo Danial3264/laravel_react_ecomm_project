@@ -90,7 +90,7 @@ const JustForYou = () => {
         {justForYouProducts.length > 0 && (
           <div>
             <h2 className="text-2xl font-bold mb-4">Just for You</h2>
-            <div className="grid grid-cols-1 gap-x-6 gap-y-10 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 xl:gap-x-6">
+            <div className="grid grid-cols-2 gap-x-2 gap-y-2 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 xl:gap-x-6">
               {justForYouProducts.map((product) => {
                 const selectedSize = selectedSizes[product.id] || '';
 
@@ -108,15 +108,15 @@ const JustForYou = () => {
                     </div>
                     <div className="flex flex-col justify-center">
                       <div>
-                        <h3 className="mt-4 text-lg text-gray-700 font-bold ">{product.product_name}</h3>
+                        <h3 className="mt-4 text-md lg:text-lg text-gray-700 font-bold ">{product.product_name}</h3>
                         <div className="flex">
                           {product.offer_price ? (
                             <>
-                              <p className="mt-1 text-lg font-medium text-gray-500 line-through mr-2">{product.product_price} TK.</p>
-                              <p className="mt-1 text-lg font-medium text-red-500">{product.offer_price} TK.</p>
+                              <p className="mt-1 text-md lg:text-lg font-medium text-gray-500 line-through mr-2">{Math.round(product.product_price)} TK.</p>
+                              <p className="mt-1 text-md lg:text-lg font-medium text-red-500">{Math.round(product.offer_price)} TK.</p>
                             </>
                           ) : (
-                            <p className="mt-1 text-lg font-medium text-red-500">{product.product_price} TK.</p>
+                            <p className="mt-1 text-md lg:text-lg font-medium text-red-500">{Math.round(product.product_price)} TK.</p>
                           )}
                         </div>
                       </div>
@@ -164,7 +164,7 @@ const JustForYou = () => {
                           Add to Cart
                         </button>
                       )}
-                      <Link to={`/product/${product.id}`} className="rounded text-lg font-bold p-2 mt-2 text-center">
+                      <Link to={`/product/${product.id}`} className="rounded text-md p-2 mt-2 text-center">
                         View Details
                       </Link>
                     </div>

@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react'
 import Logo from './Hero/Logo';
 import axios from 'axios';
 import { config } from '../../config';
+import { Link } from 'react-router-dom';
 
 const Footer = () => {
   const url = config.apiBaseUrl;
@@ -23,7 +24,9 @@ const Footer = () => {
   return (
     <>
       <div className='grid grid-cols-1 text-center md:grid-cols-3 md:text-start lg:text-start lg:grid-cols-5  bg-gray-200 p-20 mt-6 space-x-3 space-y-3'>
-        <div><Logo /></div>
+        <div className="w-full md:w-auto flex justify-center md:justify-start">
+          <Link to="/" className="text-white font-bold text-lg"><Logo /></Link>
+        </div>
         <div className='flex flex-col space-y-3'>
           <p className='font-bold text-lg'>Products</p>
           {categories.map((category)=>(

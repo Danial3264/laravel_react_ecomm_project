@@ -1,4 +1,3 @@
-// Category.js
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { Link, useLocation } from 'react-router-dom';
@@ -33,7 +32,7 @@ const Category = () => {
     return <div>{error}</div>;   
   }
 
-  // URL থেকে অ্যাক্টিভ ক্যাটাগরি আইডি বের করা
+  // URL থেকে অ্যাক্টিভ ক্যাটাগরি বের করা
   const params = new URLSearchParams(location.search);
   const activeCategory = params.get('category');
 

@@ -23,7 +23,7 @@ const Logo = () => {
                 logos.map((log, index) => (
                     <img 
                         key={index} // Add a unique key for each child element
-                        className='w-[200px] h-[50px]' 
+                        className='w-[120px] lg:w-[200px] h-[50px]' 
                         src={`${customUrl}${log.logo}`}
                         alt="Logo"
                     />
