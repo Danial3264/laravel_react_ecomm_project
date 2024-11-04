@@ -99,7 +99,11 @@ const JustForYou = () => {
 
                 return (
                   <div key={product.id} className="group relative border p-2 rounded-lg bg-gray-100">
-                    <div className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-200 xl:aspect-h-8 xl:aspect-w-7">
+                    <div
+                      className="aspect-h-1 aspect-w-1 w-full overflow-hidden rounded-lg bg-gray-200 xl:aspect-h-8 xl:aspect-w-7"
+                      onClick={() => window.location.href = `/product/${product.id}`} // Add this to handle image click for navigation
+                      style={{ cursor: "pointer" }} // Change cursor to indicate clickability
+                    >
                       <img
                         alt={product.product_name}
                         src={`${baseUrl}${product.product_image}`}

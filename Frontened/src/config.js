@@ -1,6 +1,6 @@
 export const config = {
-    apiBaseUrl: 'https://api.sunnahplus.com/api',
-    customUrl: 'https://api.sunnahplus.com',
+    apiBaseUrl: 'http://danial.local/api',
+    customUrl: 'http://danial.local',
 };
 
 

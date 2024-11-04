@@ -204,7 +204,22 @@ const Product = () => {
               </div>
 
               <h3 className="text-lg font-semibold">{relatedProduct.product_name}</h3>
-              <p className="text-red-500 font-bold">৳{relatedProduct.offer_price || relatedProduct.product_price}</p>
+              <div className="flex">
+                {relatedProduct.offer_price ? (
+                  <>
+                    <p className="mt-1 text-md lg:text-lg font-medium text-gray-500 line-through mr-2">
+                      {Math.round(relatedProduct.product_price)} TK.
+                    </p>
+                    <p className="mt-1 text-md lg:text-lg font-medium text-red-500">
+                      {Math.round(relatedProduct.offer_price)} TK.
+                    </p>
+                  </>
+                ) : (
+                  <p className="mt-1 text-md lg:text-lg font-medium text-red-500">
+                    {Math.round(relatedProduct.product_price)} TK.
+                  </p>
+                )}
+              </div>
               <button
                 className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-lg"
                 onClick={() => navigate(`/product/${relatedProduct.id}`)}

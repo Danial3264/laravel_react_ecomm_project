@@ -22,8 +22,7 @@ const Checkout = () => {
   const [customerInfo, setCustomerInfo] = useState({
     name: '',
     address: '',
-    phone_number: '',
-    email: ''
+    phone_number: ''
   });
 
 
@@ -175,18 +174,6 @@ const handleDelete = (itemId, size) => {
               id="phone_number" 
               placeholder="Enter your phone number"
               value={customerInfo.phone_number}
-              onChange={handleChange}
-              required
-            />
-
-            <label className="text-lg font-medium mb-2" htmlFor="email">Email</label>
-            <input 
-              className="mb-6 w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500" 
-              type="email" 
-              name="email" 
-              id="email" 
-              placeholder="Enter your email"
-              value={customerInfo.email}
               onChange={handleChange}
               required
             />

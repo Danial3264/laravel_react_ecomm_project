@@ -22,7 +22,7 @@ const Steadfast = () => {
 
   // Filter for completed orders only and remove duplicates based on orderNumber
   const completedOrders = orders
-    .filter(order => order.payment_status === 'Completed')
+    .filter(order => order.payment_status === 'Delivered')
     .reduce((acc, order) => {
       if (!acc.find(item => item.orderNumber === order.orderNumber)) {
         acc.push(order);

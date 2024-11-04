@@ -9,7 +9,9 @@ const PendingOrders = () => {
   const apiUrl = config.apiBaseUrl;
   const dispatch = useDispatch();
   const [editingOrder, setEditingOrder] = useState(null);
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState({
+    items:[]
+  });
 
   useEffect(() => {
     dispatch(fetchOrders());
@@ -22,7 +24,6 @@ const PendingOrders = () => {
 
   const handleEdit = (order) => {
     setEditingOrder(order.orderId); 
-    console.log('His: ',order)
     setFormData({
       customer_id: order.id,
       name: order.name,
@@ -59,16 +60,11 @@ const PendingOrders = () => {
   };
 
   const removeItem = async (index, order_id, product_id) => {
-    console.log('Removing item:', order_id, product_id);  // Log to check values being passed
     try {
-      const response = await axios.delete(`${apiUrl}/items/${order_id}/${product_id}`);
-      console.log('Response from server:', response);  // Check server response
-      const updatedItems = formData.items.filter((_, i) => i !== index);
-      setFormData({
-        ...formData,
-        items: updatedItems,
-      });
-      alert('Item removed successfully');
+      await axios.delete(`${apiUrl}/items/${order_id}/${product_id}`);
+      // Fetch the latest orders to reflect the changes immediately
+      dispatch(fetchOrders());
+      setEditingOrder(null); // Close editing if needed
     } catch (error) {
       console.error('Failed to remove item:', error);
       alert('Failed to remove item from the order');
@@ -82,12 +78,14 @@ const PendingOrders = () => {
       dispatch(updateOrder({ id: editingOrder, updatedOrder: formData }));
       dispatch(fetchOrders());
       setEditingOrder(null);
+      dispatch(fetchOrders());
     }
   };
 
   const handleDelete = (orderId) => {
     if (window.confirm('Are you sure you want to delete this order?')) {
       dispatch(deleteOrder(orderId));
+      dispatch(fetchOrders());
       dispatch(fetchOrders());
     }
   };

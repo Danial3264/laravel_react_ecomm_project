@@ -81,6 +81,7 @@ const FailedOrders = () => {
       dispatch(updateOrder({ id: editingOrder, updatedOrder: formData }));
       dispatch(fetchOrders());
       setEditingOrder(null);
+      dispatch(fetchOrders());
     }
   };
 
@@ -88,6 +89,7 @@ const FailedOrders = () => {
   const handleDelete = (orderId) => {
     if (window.confirm('Are you sure you want to delete this order?')) {
       dispatch(deleteOrder(orderId));
+      dispatch(fetchOrders());
       dispatch(fetchOrders());
     }
   };
@@ -133,7 +135,7 @@ const FailedOrders = () => {
 
   return (
     <div className="bg-white shadow-lg rounded-lg p-6 w-full max-w-screen">
-      <h2 className="text-2xl font-bold mb-4">Pending Orders</h2>
+      <h2 className="text-2xl font-bold mb-4">Failed Orders</h2>
 
       {status === 'loading' && <p>Loading...</p>}
       {status === 'failed' && <p>Error: {error}</p>}

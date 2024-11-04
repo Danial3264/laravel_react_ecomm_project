@@ -31,6 +31,7 @@ const ViewSteadfast = () => {
                 // Update the state to reflect the deleted slide
                 const filteredCourier = couriers.filter((courier) => courier.id !== id);
                 setCouriers(filteredCourier);
+                setCouriers(filteredCourier);
             })
             .catch(error => {
                 console.error("There was an error deleting the courier!", error);

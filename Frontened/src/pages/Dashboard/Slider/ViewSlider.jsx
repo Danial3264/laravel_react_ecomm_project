@@ -25,7 +25,7 @@ const ViewSlider = () => {
 
         console.log(id)
         if (window.confirm("Are you sure you want to delete this slide?")) {
-            axios.delete(`${apiUrl}/slider/${id}`) // Assuming your backend API follows REST conventions
+            axios.delete(`${apiUrl}/sliders/${id}`) // Assuming your backend API follows REST conventions
             .then(response => {
                 console.log("slide deleted successfully:", response.data);
                 // Update the state to reflect the deleted slide

@@ -119,7 +119,7 @@ const CompleteOrders = () => {
         ...formData,
         items: updatedItems,
       });
-      alert('Item removed successfully');
+      dispatch(fetchOrders());
     } catch (error) {
       console.error('Failed to remove item:', error);
       alert('Failed to remove item from the order');
@@ -134,6 +134,7 @@ const CompleteOrders = () => {
       dispatch(updateOrder({ id: editingOrder, updatedOrder: formData }));
       dispatch(fetchOrders());
       setEditingOrder(null);
+      dispatch(fetchOrders());
     }
   };
 

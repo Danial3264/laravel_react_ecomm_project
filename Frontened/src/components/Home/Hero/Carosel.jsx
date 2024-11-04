@@ -44,7 +44,7 @@ const Carosel = () => {
               />
               
               {/* Black overlay with opacity */}
-              <div className="absolute inset-0 bg-black opacity-75"></div>
+              <div className="absolute inset-0 bg-black opacity-50"></div>
     
               {/* Text content */}
               <div className="absolute inset-0 flex flex-col items-center justify-center p-10 text-center text-red-950">

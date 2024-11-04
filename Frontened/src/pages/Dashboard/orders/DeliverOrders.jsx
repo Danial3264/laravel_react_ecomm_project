@@ -9,7 +9,9 @@ const DeliverOrders = () => {
   const apiUrl = config.apiBaseUrl;
   const dispatch = useDispatch();
   const [editingOrder, setEditingOrder] = useState(null);
-  const [formData, setFormData] = useState({});
+  const [formData, setFormData] = useState({
+    items: [], // Initialize items as an empty array
+  });
 
   useEffect(() => {
     dispatch(fetchOrders());
@@ -18,11 +20,8 @@ const DeliverOrders = () => {
   const { orders, status, error } = useSelector((state) => state.orders);
   const pendingOrders = orders.filter(order => order.payment_status === 'Delivered');
 
-  console.log('My order:', orders)
-
   const handleEdit = (order) => {
-    setEditingOrder(order.orderId); 
-    console.log('His: ',order)
+    setEditingOrder(order.orderId);
     setFormData({
       customer_id: order.id,
       name: order.name,
@@ -31,15 +30,14 @@ const DeliverOrders = () => {
       total_amount: order.total_amount,
       payment_method: order.payment_method,
       payment_status: order.payment_status,
-      customer_id: order.customer_id,
       shipping_cost: order.shipping_cost,
-      items: order.items.map(item => ({
+      items: order.items?.map(item => ({
         product_id: item.product_id,
         order_id: item.order_id,
         product_name: item.product_name,
         quantity: item.quantity,
         size: item.size,
-      })),
+      })) || [], // Ensure items is an array
     });
   };
 
@@ -52,29 +50,20 @@ const DeliverOrders = () => {
     const { name, value } = e.target;
     const updatedItems = [...formData.items];
     updatedItems[index][name] = value;
-    setFormData({
-      ...formData,
-      items: updatedItems,
-    });
+    setFormData({ ...formData, items: updatedItems });
   };
 
   const removeItem = async (index, order_id, product_id) => {
-    console.log('Removing item:', order_id, product_id);  // Log to check values being passed
     try {
-      const response = await axios.delete(`${apiUrl}/items/${order_id}/${product_id}`);
-      console.log('Response from server:', response);  // Check server response
-      const updatedItems = formData.items.filter((_, i) => i !== index);
-      setFormData({
-        ...formData,
-        items: updatedItems,
-      });
-      alert('Item removed successfully');
+      await axios.delete(`${apiUrl}/items/${order_id}/${product_id}`);
+      // Fetch the latest orders to reflect the changes immediately
+      dispatch(fetchOrders());
+      setEditingOrder(null); // Close editing if needed
     } catch (error) {
       console.error('Failed to remove item:', error);
       alert('Failed to remove item from the order');
     }
   };
-  
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -82,6 +71,7 @@ const DeliverOrders = () => {
       dispatch(updateOrder({ id: editingOrder, updatedOrder: formData }));
       dispatch(fetchOrders());
       setEditingOrder(null);
+      dispatch(fetchOrders());
     }
   };
 
