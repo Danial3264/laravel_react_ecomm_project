@@ -17,12 +17,14 @@ class AuthController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:6',
+            'role' => 'required|string'
         ]);
 
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'role'=>$request->role
         ]);
 
         $token = $user->createToken('auth_token')->plainTextToken;
@@ -37,16 +39,30 @@ class AuthController extends Controller
     // লগইন মেথড
     public function login(Request $request)
     {
+        // Validate email and password input
         $request->validate([
             'email' => 'required|string|email',
             'password' => 'required|string',
         ]);
 
+        // Check if user credentials are correct
         if (!Auth::attempt($request->only('email', 'password'))) {
             return response()->json(['message' => 'Invalid login details'], 401);
         }
 
+        // Retrieve authenticated user
         $user = Auth::user();
+
+        // Check if user is an admin
+        if ($user->role !== 'admin') {
+            // Logout user immediately if not admin and return error message
+            Auth::logout();
+            return response()->json([
+                'message' => 'Only admin users are allowed to login.'
+            ], 403);
+        }
+
+        // Generate token if admin login is successful
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
@@ -55,6 +71,7 @@ class AuthController extends Controller
             'token_type' => 'Bearer',
         ]);
     }
+
 
     // লগআউট মেথড
     public function logout(Request $request)

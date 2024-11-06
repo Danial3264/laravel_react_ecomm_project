@@ -16,6 +16,7 @@ import TermsOfService from "./pages/optional/TermsOfService";
 import Returns from "./pages/optional/Return";
 import axios from "axios";
 import { config } from "./config";
+import Register from "./pages/Dashboard/Register";
 
 const apiUrl = config.apiBaseUrl;
 
@@ -55,6 +56,7 @@ function App() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/register" element={<Register />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/shop" element={<Shop />} />
           <Route path="/Thanks" element={<Thanks />} />

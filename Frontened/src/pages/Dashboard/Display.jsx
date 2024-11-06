@@ -22,6 +22,7 @@ import AddSteadfast from './Steadfast/AddSteadfast';
 import ViewSteadfast from './Steadfast/ViewSteadfast';
 import AddCustomCode from './Custom/AddCustomCode';
 import ViewCustomCode from './Custom/ViewCustomCode';
+import Users from './User/Users';
 
 const Display = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
@@ -66,8 +67,11 @@ const Display = () => {
         case 'viewCustomCode':
         return <ViewCustomCode />;
 
-      case 'orders':
+        case 'orders':
         return <Orders />;
+
+        case 'viewUsers':
+        return <Users />;
 
 
       default:
@@ -231,6 +235,16 @@ const Display = () => {
           >
             <TbCategoryFilled size={20} className={`${selectedMenu === 'viewCustomCode' ? 'text-yellow-400' : ''}`} />
             {isSidebarOpen && <span>View Custom Code</span>}
+          </li>
+
+
+          <li
+            onClick={() => setSelectedMenu('viewUsers')}
+            className={`flex items-center space-x-4 p-2 rounded cursor-pointer 
+              ${selectedMenu === 'viewUsers' ? 'bg-gray-700 font-bold' : 'hover:bg-gray-700'}`}
+          >
+            <TbCategoryFilled size={20} className={`${selectedMenu === 'viewUsers' ? 'text-yellow-400' : ''}`} />
+            {isSidebarOpen && <span>View Users</span>}
           </li>
 
 
